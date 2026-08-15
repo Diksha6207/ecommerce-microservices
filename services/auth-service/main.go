@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
 
@@ -11,29 +12,25 @@ import (
 func main() {
 	router := gin.Default()
 
-	config := cors.DefaultConfig()
-
-	config.AllowOrigins = []string{
-		"http://localhost:5173",
-		"http://localhost:5174",
-	}
-
-	config.AllowMethods = []string{
-		"GET",
-		"POST",
-		"PUT",
-		"DELETE",
-		"OPTIONS",
-	}
-
-	config.AllowHeaders = []string{
-		"Origin",
-		"Content-Type",
-		"Accept",
-		"Authorization",
-	}
-
-	router.Use(cors.New(config))
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:5173",
+			"http://localhost:5174",
+		},
+		AllowMethods: []string{
+			"GET",
+			"POST",
+			"PUT",
+			"DELETE",
+			"OPTIONS",
+		},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+		},
+	}))
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -60,5 +57,9 @@ func main() {
 		port = "8001"
 	}
 
-	router.Run(":" + port)
+	log.Println("Starting auth-service on port:", port)
+
+	if err := router.Run(":" + port); err != nil {
+		log.Fatal(err)
+	}
 }
