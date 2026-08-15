@@ -52,14 +52,13 @@ func main() {
 	})
 
 	port := os.Getenv("PORT")
-
 	if port == "" {
 		port = "8001"
 	}
 
-	log.Println("Starting auth-service on port:", port)
+	log.Printf("Starting auth-service on port %s", port)
 
-	if err := router.Run(":" + port); err != nil {
+	if err := router.Run("0.0.0.0:" + port); err != nil {
 		log.Fatal(err)
 	}
 }
