@@ -1,0 +1,1 @@
+import{useNavigate}from"react-router-dom";export default function Page({title,sub}){const n=useNavigate();return <div className="pagehead"><div><small>STYLESHPHERE</small><h1>{title}</h1>{sub&&<p>{sub}</p>}</div><button className="close" onClick={()=>n(-1)}>×</button></div>}

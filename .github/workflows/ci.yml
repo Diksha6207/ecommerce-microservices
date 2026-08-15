@@ -1,0 +1,30 @@
+name: StyleSphere CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+
+        with:
+          go-version: "1.25"
+
+      - name: Install Dependencies
+        run: go mod tidy
+
+      - name: Build Project
+        run: go build ./...
