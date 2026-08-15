@@ -1,4 +1,4 @@
-FROM golang:1.22
+FROM golang:1.25
 
 WORKDIR /app
 
@@ -8,4 +8,4 @@ RUN go mod download
 
 EXPOSE 8002
 
-CMD ["go","run","main.go"]
+CMD ["go", "run", "main.go"]

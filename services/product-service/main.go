@@ -2,7 +2,9 @@ package main
 
 import (
 	"net/http"
+	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +19,25 @@ type Product struct {
 
 func main() {
 	router := gin.Default()
+
+	// CORS: allow the React frontend to call this API.
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{
+		"GET",
+		"POST",
+		"PUT",
+		"DELETE",
+		"OPTIONS",
+	}
+	config.AllowHeaders = []string{
+		"Origin",
+		"Content-Type",
+		"Accept",
+		"Authorization",
+	}
+
+	router.Use(cors.New(config))
 
 	products := []Product{
 		{
@@ -56,5 +77,12 @@ func main() {
 		c.JSON(http.StatusOK, products)
 	})
 
-	router.Run(":8002")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8002"
+	}
+
+	if err := router.Run("0.0.0.0:" + port); err != nil {
+		panic(err)
+	}
 }
