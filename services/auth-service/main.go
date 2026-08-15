@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -13,9 +14,9 @@ func main() {
 	config := cors.DefaultConfig()
 
 	config.AllowOrigins = []string{
-	"http://localhost:5173",
-	"http://localhost:5174",
-}
+		"http://localhost:5173",
+		"http://localhost:5174",
+	}
 
 	config.AllowMethods = []string{
 		"GET",
@@ -53,5 +54,11 @@ func main() {
 		})
 	})
 
-	router.Run(":8001")
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8001"
+	}
+
+	router.Run(":" + port)
 }
