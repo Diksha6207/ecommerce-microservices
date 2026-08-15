@@ -5,7 +5,7 @@ import {
   useParams,
   useNavigate,
 } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useShop } from "./context/ShopContext";
 import Navbar from "./components/Navbar";
@@ -107,9 +107,29 @@ function Home() {
 function Products({ category }) {
   const [query, setQuery] = useState("");
 
-  let list = category
-    ? products.filter((p) => p.category === category)
-    : products;
+  const [apiProducts, setApiProducts] =
+    useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8002/api/products")
+      .then((response) => response.json())
+      .then((data) =>
+        setApiProducts(data)
+      )
+      .catch((error) =>
+        console.log(error)
+      );
+  }, []);
+
+  let list =
+    apiProducts.length > 0
+      ? apiProducts
+      : category
+      ? products.filter(
+          (p) =>
+            p.category === category
+        )
+      : products;
 
   list = list.filter((p) =>
     `${p.name} ${p.type}`
@@ -132,7 +152,9 @@ function Products({ category }) {
         className="search"
         placeholder="Search clothing..."
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) =>
+          setQuery(e.target.value)
+        }
       />
 
       <div className="grid">
@@ -147,13 +169,16 @@ function Products({ category }) {
       {!list.length && (
         <div className="empty">
           <h2>No products found</h2>
-          <p>Try another clothing name or category.</p>
+
+          <p>
+            Try another clothing name
+            or category.
+          </p>
         </div>
       )}
     </section>
   );
 }
-
 /* =========================
    PRODUCT DETAIL
 ========================= */
@@ -688,16 +713,40 @@ function Auth({ register = false }) {
   const [loading, setLoading] =
     useState(false);
 
-  const submit = (event) => {
-    event.preventDefault();
+  const submit = async (event) => {
+  event.preventDefault();
 
-    setLoading(true);
+  setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      navigate("/");
-    }, 700);
-  };
+  const url = register
+    ? "http://localhost:8001/api/auth/register"
+    : "http://localhost:8001/api/auth/login";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: "test@test.com",
+        password: "123456",
+      }),
+    });
+
+    const data = await response.json();
+
+    alert(data.message);
+
+    setLoading(false);
+
+    navigate("/");
+  } catch (error) {
+    setLoading(false);
+
+    alert("API connection failed");
+  }
+};
 
   return (
     <section className="auth">

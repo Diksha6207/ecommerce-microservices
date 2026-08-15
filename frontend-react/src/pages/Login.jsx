@@ -6,16 +6,40 @@ export default function Login() {
 
   const [loading, setLoading] = useState(false);
 
-  const submit = (e) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const submit = async (e) => {
     e.preventDefault();
 
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const response = await fetch(
+        "http://localhost:8001/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      alert(data.message);
 
       navigate("/profile");
-    }, 700);
+    } catch (error) {
+      alert("API connection failed");
+      console.error(error);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -27,19 +51,20 @@ export default function Login() {
           <input
             type="email"
             placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 
           <input
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <button
-            className="btn full"
-            disabled={loading}
-          >
+          <button className="btn full" disabled={loading}>
             {loading ? "Please wait..." : "Login"}
           </button>
         </form>
