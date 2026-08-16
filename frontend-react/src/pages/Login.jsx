@@ -16,7 +16,7 @@ export default function Login() {
 
     try {
       const response = await fetch(
-        "https://ecommerce-microservices-ssvx.onrender.com/api/auth/login",
+        "https://auth-service-gkzf.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {
@@ -33,13 +33,15 @@ export default function Login() {
 
       alert(data.message);
 
-      navigate("/profile");
+      if (response.ok) {
+        navigate("/profile");
+      }
     } catch (error) {
       alert("API connection failed");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -70,11 +72,8 @@ export default function Login() {
         </form>
 
         <p>
-          New to StyleSphere?
-
-          <Link to="/register">
-            Create Account
-          </Link>
+          New to StyleSphere?{" "}
+          <Link to="/register">Create Account</Link>
         </p>
       </div>
     </section>

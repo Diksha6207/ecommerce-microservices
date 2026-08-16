@@ -15,13 +15,13 @@ import products from "./data/products";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 
-
 /* =========================
    HOME
 ========================= */
 
 function Home() {
   const menProducts = products.filter((p) => p.category === "Men").slice(0, 4);
+
   const womenProducts = products
     .filter((p) => p.category === "Women")
     .slice(0, 4);
@@ -106,29 +106,20 @@ function Home() {
 
 function Products({ category }) {
   const [query, setQuery] = useState("");
-
-  const [apiProducts, setApiProducts] =
-    useState([]);
+  const [apiProducts, setApiProducts] = useState([]);
 
   useEffect(() => {
     fetch("https://product-service-s4m8.onrender.com/api/products")
       .then((response) => response.json())
-      .then((data) =>
-        setApiProducts(data)
-      )
-      .catch((error) =>
-        console.log(error)
-      );
+      .then((data) => setApiProducts(data))
+      .catch((error) => console.log(error));
   }, []);
 
   let list =
     apiProducts.length > 0
       ? apiProducts
       : category
-      ? products.filter(
-          (p) =>
-            p.category === category
-        )
+      ? products.filter((p) => p.category === category)
       : products;
 
   list = list.filter((p) =>
@@ -152,9 +143,7 @@ function Products({ category }) {
         className="search"
         placeholder="Search clothing..."
         value={query}
-        onChange={(e) =>
-          setQuery(e.target.value)
-        }
+        onChange={(e) => setQuery(e.target.value)}
       />
 
       <div className="grid">
@@ -179,6 +168,7 @@ function Products({ category }) {
     </section>
   );
 }
+
 /* =========================
    PRODUCT DETAIL
 ========================= */
@@ -279,18 +269,14 @@ function Detail() {
           <div className="actions">
             <button
               className="btn"
-              onClick={() =>
-                addToCart(product, size)
-              }
+              onClick={() => addToCart(product, size)}
             >
               Add to Cart
             </button>
 
             <button
               className="outline"
-              onClick={() =>
-                toggleWishlist(product)
-              }
+              onClick={() => toggleWishlist(product)}
             >
               {isWishlisted
                 ? "♥ Wishlisted"
@@ -306,8 +292,6 @@ function Detail() {
           </div>
         </div>
       </section>
-
-      {/* RECOMMENDATIONS */}
 
       <section className="section">
         <Page
@@ -401,10 +385,7 @@ function Cart() {
                 <div className="qty">
                   <button
                     onClick={() =>
-                      decreaseQuantity(
-                        item.id,
-                        item.size
-                      )
+                      decreaseQuantity(item.id, item.size)
                     }
                   >
                     −
@@ -414,10 +395,7 @@ function Cart() {
 
                   <button
                     onClick={() =>
-                      increaseQuantity(
-                        item.id,
-                        item.size
-                      )
+                      increaseQuantity(item.id, item.size)
                     }
                   >
                     +
@@ -427,10 +405,7 @@ function Cart() {
                 <button
                   className="remove"
                   onClick={() =>
-                    removeFromCart(
-                      item.id,
-                      item.size
-                    )
+                    removeFromCart(item.id, item.size)
                   }
                 >
                   Remove
@@ -525,11 +500,8 @@ function Checkout() {
 
   const navigate = useNavigate();
 
-  const [method, setMethod] =
-    useState("UPI");
-
-  const [orderPlaced, setOrderPlaced] =
-    useState(false);
+  const [method, setMethod] = useState("UPI");
+  const [orderPlaced, setOrderPlaced] = useState(false);
 
   const shipping = cartTotal >= 2000 ? 0 : 99;
   const total = cartTotal + shipping;
@@ -635,9 +607,7 @@ function Checkout() {
             type="radio"
             name="payment"
             checked={method === "UPI"}
-            onChange={() =>
-              setMethod("UPI")
-            }
+            onChange={() => setMethod("UPI")}
           />
           UPI
         </label>
@@ -647,9 +617,7 @@ function Checkout() {
             type="radio"
             name="payment"
             checked={method === "Card"}
-            onChange={() =>
-              setMethod("Card")
-            }
+            onChange={() => setMethod("Card")}
           />
           Credit / Debit Card
         </label>
@@ -659,9 +627,7 @@ function Checkout() {
             type="radio"
             name="payment"
             checked={method === "COD"}
-            onChange={() =>
-              setMethod("COD")
-            }
+            onChange={() => setMethod("COD")}
           />
           Cash on Delivery
         </label>
@@ -695,8 +661,7 @@ function Checkout() {
           className="btn full"
           type="submit"
         >
-          Pay ₹{total.toLocaleString("en-IN")} •{" "}
-          {method}
+          Pay ₹{total.toLocaleString("en-IN")} • {method}
         </button>
       </form>
     </section>
@@ -710,43 +675,43 @@ function Checkout() {
 function Auth({ register = false }) {
   const navigate = useNavigate();
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   const submit = async (event) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  setLoading(true);
+    setLoading(true);
 
-  const url = register
-    ? "https://ecommerce-microservices-ssvx.onrender.com/api/auth/register"
-    : "https://ecommerce-microservices-ssvx.onrender.com/api/auth/login";
+    const url = register
+      ? "https://auth-service-gkzf.onrender.com/api/auth/register"
+      : "https://auth-service-gkzf.onrender.com/api/auth/login";
 
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: "test@test.com",
-        password: "123456",
-      }),
-    });
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "test@test.com",
+          password: "123456",
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    alert(data.message);
+      alert(data.message);
 
-    setLoading(false);
-
-    navigate("/");
-  } catch (error) {
-    setLoading(false);
-
-    alert("API connection failed");
-  }
-};
+      if (response.ok) {
+        navigate("/");
+      }
+    } catch (error) {
+      alert("API connection failed");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="auth">
@@ -835,8 +800,7 @@ function Orders() {
           <b>Order #SS-2026-1048</b>
 
           <p>
-            Payment confirmed • Preparing for
-            dispatch
+            Payment confirmed • Preparing for dispatch
           </p>
         </div>
 
@@ -868,16 +832,12 @@ function App() {
 
         <Route
           path="/men"
-          element={
-            <Products category="Men" />
-          }
+          element={<Products category="Men" />}
         />
 
         <Route
           path="/women"
-          element={
-            <Products category="Women" />
-          }
+          element={<Products category="Women" />}
         />
 
         <Route
@@ -911,39 +871,37 @@ function App() {
         />
 
         <Route
-  path="/orders"
-  element={<Orders />}
-/>
+          path="/orders"
+          element={<Orders />}
+        />
 
-<Route
-  path="/dashboard"
-  element={<Dashboard />}
-/>
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
 
-<Route
-  path="/profile"
-  element={<Profile />}
-/>
+        <Route
+          path="/profile"
+          element={<Profile />}
+        />
 
-<Route
-  path="*"
-  element={
-    <section className="section">
-      <Page title="404" />
+        <Route
+          path="*"
+          element={
+            <section className="section">
+              <Page title="404" />
 
-      <Link className="btn" to="/">
-        Back Home
-      </Link>
-    </section>
-  }
-/>
-
-        
+              <Link className="btn" to="/">
+                Back Home
+              </Link>
+            </section>
+          }
+        />
       </Routes>
 
       <footer>
-        StyleSphere Clothing Store • Secure
-        checkout • Easy returns • © 2026
+        StyleSphere Clothing Store • Secure checkout •
+        Easy returns • © 2026
       </footer>
     </>
   );

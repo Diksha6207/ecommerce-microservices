@@ -17,7 +17,7 @@ export default function Register() {
 
     try {
       const response = await fetch(
-        "https://ecommerce-microservices-ssvx.onrender.com/api/auth/register",
+        "https://auth-service-gkzf.onrender.com/api/auth/register",
         {
           method: "POST",
           headers: {
@@ -35,13 +35,15 @@ export default function Register() {
 
       alert(data.message);
 
-      navigate("/profile");
+      if (response.ok) {
+        navigate("/profile");
+      }
     } catch (error) {
       alert("API connection failed");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -80,11 +82,8 @@ export default function Register() {
         </form>
 
         <p>
-          Already have an account?
-
-          <Link to="/login">
-            Login
-          </Link>
+          Already have an account?{" "}
+          <Link to="/login">Login</Link>
         </p>
       </div>
     </section>
