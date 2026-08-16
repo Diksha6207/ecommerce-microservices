@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
@@ -18,22 +20,56 @@ type Order struct {
 }
 
 func main() {
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbSSLMode := os.Getenv("DB_SSLMODE")
+
+	if dbSSLMode == "" {
+		dbSSLMode = "require"
+	}
+
 	dbURL := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		dbHost,
+		dbPort,
+		dbUser,
+		dbPassword,
+		dbName,
+		dbSSLMode,
 	)
 
 	db, err := sql.Open("postgres", dbURL)
-
 	if err != nil {
-		panic(err)
+		log.Fatal("database open error:", err)
 	}
 
+	if err := db.Ping(); err != nil {
+		log.Fatal("database connection error:", err)
+	}
+
+	defer db.Close()
+
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		AllowMethods: []string{
+			"GET",
+			"POST",
+			"PUT",
+			"DELETE",
+			"OPTIONS",
+		},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+		},
+	}))
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -44,43 +80,49 @@ func main() {
 
 	router.GET("/api/orders", func(c *gin.Context) {
 		rows, err := db.Query(
-			"SELECT id,user_id,total,status FROM orders",
+			"SELECT id, user_id, total, status FROM orders",
 		)
 
 		if err != nil {
-			c.JSON(
-				http.StatusInternalServerError,
-				gin.H{"error": err.Error()},
-			)
-
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
 			return
 		}
 
 		defer rows.Close()
 
-		var orders []Order
+		orders := []Order{}
 
 		for rows.Next() {
 			var order Order
 
-			rows.Scan(
+			if err := rows.Scan(
 				&order.ID,
 				&order.UserID,
 				&order.Total,
 				&order.Status,
-			)
+			); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
 
-			orders = append(
-				orders,
-				order,
-			)
+			orders = append(orders, order)
 		}
 
-		c.JSON(
-			http.StatusOK,
-			orders,
-		)
+		c.JSON(http.StatusOK, orders)
 	})
 
-	router.Run(":8004")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8004"
+	}
+
+	log.Printf("Starting order-service on port %s", port)
+
+	if err := router.Run("0.0.0.0:" + port); err != nil {
+		log.Fatal(err)
+	}
 }
