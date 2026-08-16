@@ -115,7 +115,7 @@ function Products({ category }) {
       .catch((error) => console.log(error));
   }, []);
 
-  const sourceProducts =
+ const sourceProducts =
   apiProducts.length > 0
     ? apiProducts.map((apiProduct) => {
         const localProduct = products.find(
@@ -132,7 +132,7 @@ function Products({ category }) {
             apiProduct.description ||
             localProduct?.description,
           sizes:
-            apiProduct.sizes?.length
+            apiProduct.sizes?.length > 0
               ? apiProduct.sizes
               : localProduct?.sizes || [],
         };
