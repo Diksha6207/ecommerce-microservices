@@ -115,36 +115,37 @@ function Products({ category }) {
       .catch((error) => console.log(error));
   }, []);
 
- const sourceProducts =
-  apiProducts.length > 0
-    ? apiProducts.map((apiProduct) => {
-        const localProduct = products.find(
-          (p) => p.id === apiProduct.id
-        );
+ const sourceProducts = products.map((localProduct) => {
+  const apiProduct = apiProducts.find(
+    (item) => item.id === localProduct.id
+  );
 
-        return {
-          ...localProduct,
-          ...apiProduct,
-          image:
-            apiProduct.image ||
-            localProduct?.image,
-          description:
-            apiProduct.description ||
-            localProduct?.description,
-          sizes:
-            apiProduct.sizes?.length > 0
-              ? apiProduct.sizes
-              : localProduct?.sizes || [],
-        };
-      })
-    : products;
+  if (!apiProduct) {
+    return localProduct;
+  }
+
+  return {
+    ...localProduct,
+    ...apiProduct,
+    image:
+      apiProduct.image ||
+      localProduct.image,
+    description:
+      apiProduct.description ||
+      localProduct.description,
+    sizes:
+      apiProduct.sizes?.length > 0
+        ? apiProduct.sizes
+        : localProduct.sizes || [],
+  };
+});
 
 let list = category
   ? sourceProducts.filter(
       (p) => p.category === category
     )
   : sourceProducts;
-
+  
   list = list.filter((p) =>
     `${p.name} ${p.type}`
       .toLowerCase()
