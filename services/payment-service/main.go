@@ -1,8 +1,12 @@
+
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +19,25 @@ type PaymentRequest struct {
 func main() {
 	router := gin.Default()
 
-	// Health check
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		
+		AllowMethods: []string{
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "OPTIONS",
+},
+	
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+		},
+	}))
+
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"service": "payment-service",
@@ -23,7 +45,6 @@ func main() {
 		})
 	})
 
-	// Create payment
 	router.POST("/api/payments", func(c *gin.Context) {
 		var request PaymentRequest
 
@@ -36,7 +57,6 @@ func main() {
 			return
 		}
 
-		// Demo payment processing
 		c.JSON(http.StatusCreated, gin.H{
 			"success": true,
 			"message": "Payment completed successfully",
@@ -49,7 +69,6 @@ func main() {
 		})
 	})
 
-	// Get payment
 	router.GET("/api/payments/:id", func(c *gin.Context) {
 		id := c.Param("id")
 
@@ -62,5 +81,16 @@ func main() {
 		})
 	})
 
-	router.Run(":8005")
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8005"
+	}
+
+	log.Printf("Starting payment-service on port %s", port)
+
+	if err := router.Run("0.0.0.0:" + port); err != nil {
+		log.Fatal(err)
+	}
 }
+
