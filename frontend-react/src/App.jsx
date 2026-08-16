@@ -677,6 +677,10 @@ function Auth({ register = false }) {
 
   const [loading, setLoading] = useState(false);
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const submit = async (event) => {
     event.preventDefault();
 
@@ -687,27 +691,45 @@ function Auth({ register = false }) {
       : "https://auth-service-gkzf.onrender.com/api/auth/login";
 
     try {
+      const body = register
+        ? {
+            name,
+            email,
+            password,
+          }
+        : {
+            email,
+            password,
+          };
+
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: "test@test.com",
-          password: "123456",
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
 
+      if (!response.ok) {
+        alert(data.message || "Authentication failed");
+        return;
+      }
+
+      if (data.user) {
+        localStorage.setItem(
+          "stylesphereUser",
+          JSON.stringify(data.user)
+        );
+      }
+
       alert(data.message);
 
-      if (response.ok) {
-        navigate("/");
-      }
+      navigate("/profile");
     } catch (error) {
-      alert("API connection failed");
       console.error(error);
+      alert("API connection failed");
     } finally {
       setLoading(false);
     }
@@ -733,7 +755,10 @@ function Auth({ register = false }) {
           {register && (
             <input
               required
+              type="text"
               placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           )}
 
@@ -741,17 +766,25 @@ function Auth({ register = false }) {
             required
             type="email"
             placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <input
             required
             type="password"
             placeholder="Password"
+            minLength={6}
+            value={password}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
           />
 
           <button
             className="btn full"
             disabled={loading}
+            type="submit"
           >
             {loading
               ? "Please wait..."
