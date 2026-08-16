@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -80,7 +81,7 @@ func main() {
 
 	router.GET("/api/orders", func(c *gin.Context) {
 		rows, err := db.Query(
-			"SELECT id, user_id, total, status FROM orders",
+			"SELECT id, user_id, total_amount, order_status FROM orders",
 		)
 
 		if err != nil {
@@ -112,10 +113,18 @@ func main() {
 			orders = append(orders, order)
 		}
 
+		if err := rows.Err(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
 		c.JSON(http.StatusOK, orders)
 	})
 
 	port := os.Getenv("PORT")
+
 	if port == "" {
 		port = "8004"
 	}
@@ -126,3 +135,4 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
