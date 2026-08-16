@@ -115,12 +115,35 @@ function Products({ category }) {
       .catch((error) => console.log(error));
   }, []);
 
-  let list =
-    apiProducts.length > 0
-      ? apiProducts
-      : category
-      ? products.filter((p) => p.category === category)
-      : products;
+  const sourceProducts =
+  apiProducts.length > 0
+    ? apiProducts.map((apiProduct) => {
+        const localProduct = products.find(
+          (p) => p.id === apiProduct.id
+        );
+
+        return {
+          ...localProduct,
+          ...apiProduct,
+          image:
+            apiProduct.image ||
+            localProduct?.image,
+          description:
+            apiProduct.description ||
+            localProduct?.description,
+          sizes:
+            apiProduct.sizes?.length
+              ? apiProduct.sizes
+              : localProduct?.sizes || [],
+        };
+      })
+    : products;
+
+let list = category
+  ? sourceProducts.filter(
+      (p) => p.category === category
+    )
+  : sourceProducts;
 
   list = list.filter((p) =>
     `${p.name} ${p.type}`
