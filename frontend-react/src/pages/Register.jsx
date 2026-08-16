@@ -17,7 +17,7 @@ export default function Register() {
 
     try {
       const response = await fetch(
-        "http://localhost:8001/api/auth/register",
+        "https://ecommerce-microservices-ssvx.onrender.com/api/auth/register",
         {
           method: "POST",
           headers: {

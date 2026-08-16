@@ -16,7 +16,7 @@ export default function Login() {
 
     try {
       const response = await fetch(
-        "http://localhost:8001/api/auth/login",
+        "https://ecommerce-microservices-ssvx.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: {

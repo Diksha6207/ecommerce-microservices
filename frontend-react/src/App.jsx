@@ -111,7 +111,7 @@ function Products({ category }) {
     useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8002/api/products")
+    fetch("https://product-service-s4m8.onrender.com/api/products")
       .then((response) => response.json())
       .then((data) =>
         setApiProducts(data)
@@ -719,8 +719,8 @@ function Auth({ register = false }) {
   setLoading(true);
 
   const url = register
-    ? "http://localhost:8001/api/auth/register"
-    : "http://localhost:8001/api/auth/login";
+    ? "https://ecommerce-microservices-ssvx.onrender.com/api/auth/register"
+    : "https://ecommerce-microservices-ssvx.onrender.com/api/auth/login";
 
   try {
     const response = await fetch(url, {
