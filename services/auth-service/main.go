@@ -12,25 +12,30 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{
-			"http://localhost:5173",
-			"http://localhost:5174",
-		},
-		AllowMethods: []string{
-			"GET",
-			"POST",
-			"PUT",
-			"DELETE",
-			"OPTIONS",
-		},
-		AllowHeaders: []string{
-			"Origin",
-			"Content-Type",
-			"Accept",
-			"Authorization",
-		},
-	}))
+	config := cors.DefaultConfig()
+
+	config.AllowOrigins = []string{
+		"http://localhost:5173",
+		"http://localhost:5174",
+		"https://ecommerce-microservices-orcin.vercel.app",
+	}
+
+	config.AllowMethods = []string{
+		"GET",
+		"POST",
+		"PUT",
+		"DELETE",
+		"OPTIONS",
+	}
+
+	config.AllowHeaders = []string{
+		"Origin",
+		"Content-Type",
+		"Accept",
+		"Authorization",
+	}
+
+	router.Use(cors.New(config))
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -52,6 +57,7 @@ func main() {
 	})
 
 	port := os.Getenv("PORT")
+
 	if port == "" {
 		port = "8001"
 	}
